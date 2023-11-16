@@ -9,7 +9,7 @@
   <Sidebar />
   <div class="main-panel">
     <slot />
-    <!-- <footer class="footer">
+    <footer class="footer">
       <div class="container-fluid">
         <nav class="pull-left">
           <ul class="nav">
@@ -33,9 +33,9 @@
         </nav>
         <div class="copyright ml-auto">
           2018, made with <i class="la la-heart heart text-danger" /> by
-          <a href="http://www.themekita.com">ThemeKita</a>
+          <a href="http://www.adminpanel.com">AdminPanel</a>
         </div>
       </div>
-    </footer> -->
+    </footer>
   </div>
 </div>

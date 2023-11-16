@@ -3,7 +3,8 @@
 
 <div class="main-header">
   <div class="logo-header bg-dark">
-    <a href="index.html" class="logo text-light justify-start"> Admin Panel </a>
+    <a href="index.html" class="logo text-light justify-start"> Admin Panel</a>
+    
     <button
       class="navbar-toggler sidenav-toggler ml-auto"
       type="button"
