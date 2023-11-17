@@ -89,7 +89,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <button  class="btn btn-primary" data-toggle="modal" data-target="#modalUpdate">
+                <button  class="btn btn-primary d-flex" data-toggle="modal" data-target="#modalUpdate">
                     <p>Update To Pro</p>
                     <i class="fa fa-hand-pointer-o p-2"></i>
                 </button>

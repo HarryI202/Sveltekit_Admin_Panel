@@ -1,14 +1,19 @@
 <script>
   import "../app.css";
+  import { page } from "$app/stores";
   import Header from "$lib/components/Header.svelte";
   import Sidebar from "$lib/components/Sidebar.svelte";
 </script>
 
-<div class="wrapper">
-  <Header />
-  <Sidebar />
-  <div class="main-panel">
-    <slot />
+{#if !$page.route.id?.includes("/login")}
+  <div class="wrapper">
+    <Header />
+    <!-- {/if} -->
+    <Sidebar />
+    <div class="main-panel">
+      <slot />
+    </div>
+    <!-- {#if !$page.route.id?.includes("/login")} -->
     <footer class="footer">
       <div class="container-fluid">
         <nav class="pull-left">
@@ -38,4 +43,8 @@
       </div>
     </footer>
   </div>
-</div>
+{:else}
+  <div class="wrapper">
+    <slot />
+  </div>
+{/if}
