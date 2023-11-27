@@ -1,5 +1,9 @@
 <script>
   // @ts-nocheck
+  import { createEventDispatcher } from "svelte";
+
+  export let todolist;
+
   let showModal = false;
   let defaultView = true;
   let rowIndex;
@@ -7,16 +11,14 @@
   let visibleInput = false;
   let todoName = "";
   let todostatus = ["Pending", "OnGoing", "Completed", "Rejected"];
-  let todolist = [
-    { name: "Planning new project structure", status: 0 },
-    { name: "Update Fonts", status: 1 },
-    { name: "Add new Post", status: 2 },
-    { name: "Finalise the design proposal", status: 3 },
-  ];
+  let todolists = todolist;
+
+  const dispatch = createEventDispatcher();
+
   const getClass = (status) => {
-    if (status === 0) {
-      return "text-dark";
-    }
+    // if (status === 0) {
+    //   return "text-dark";
+    // }
     if (status === 1) {
       return "text-warning";
     }
@@ -34,6 +36,22 @@
   const closeModal = () => {
     showModal = false;
   };
+  const changeTodo = (data) => {
+    todolist = data;
+  };
+  const sendBackData = (data) => {
+    if (typeof window !== "undefined") {
+      const customEvent = new CustomEvent("dataReceived", {
+        detail: {
+          data: data,
+        },
+      });
+      dispatch("dataReceived", customEvent);
+    }
+  };
+  $: {
+    sendBackData(todolists);
+  }
 
   const enableEdit = (index) => {
     rowIndex = index;
@@ -49,10 +67,11 @@
 
   const changeStatus = () => {
     if (allChecked) {
-      todolist.forEach((item, index) => (todolist[index].status = 2));
+      todolists.forEach((item, index) => (todolists[index].status = 2));
     } else {
-      todolist.forEach((item, index) => (todolist[index].status = 0));
+      todolists.forEach((item, index) => (todolists[index].status = 0));
     }
+    // todolist = todolists;
   };
   const handleClickOutside = (event, index) => {
     const modal = document.getElementById("input-" + index);
@@ -61,9 +80,8 @@
     }
   };
   const onEditSave = (index, status) => {
-    todolist[index].status = status;
+    todolists[index].status = status;
     defaultView = true;
-
     let defaultDiv = document.getElementById(`default-${index}`);
     let changedDiv = document.getElementById(`change-${index}`);
     defaultDiv.classList.remove("d-none");
@@ -72,11 +90,13 @@
   };
 
   const addTodo = () => {
-    todolist.push({
+    todolists.push({
       name: todoName,
       status: 0,
     });
+    todoName = "";
     visibleInput = false;
+    // todolist = todolists;
   };
 </script>
 
@@ -126,7 +146,7 @@
         </span>
       </div>
     </div>
-    <div class="card-body">
+    <div class="card-body" style="padding-top:0%;">
       <div class="table-full-width" role="button" tabindex="">
         <!-- on:mousedown={(e) => handleClickOutside(e, rowIndex)} -->
         <table class="table">
@@ -191,89 +211,96 @@
             </tr>
           </thead>
           <tbody>
-            {#key todolist}
-              {todolist.length}
-              {#each todolist as item, index (item)}
-                <tr>
-                  <td>
-                    <div class="form-check">
-                      <label class="form-check-label">
-                        <input
-                          class=" text-success"
-                          type="checkbox"
-                          checked={item.status === 2 ? true : false}
-                          on:change={() =>
-                            (todolist[index].status =
-                              todolist[index].status === 0
-                                ? 2
-                                : todolist[index].status === 1 ||
-                                  todolist[index].status === 3
-                                ? 2
-                                : 0)}
-                        />
-                        <!-- <span class="form-check-sign"></span> -->
-                      </label>
-                    </div>
-                  </td>
-                  <td class={getClass(item.status)}>
-                    <div id="default-{index}">
-                      {item.name}
-                    </div>
-
-                    <div class="input-group d-none" id="change-{index}">
+            <!-- {#key todolists} -->
+            {#each todolists as item, index (item)}
+              <tr>
+                <td>
+                  <div class="form-check">
+                    <label class="form-check-label">
                       <input
-                        type="text"
-                        class="form-control {getClass(item.status)}"
-                        bind:value={item.name}
-                        style="width:fit-content;"
-                        id={"input-" + index}
+                        class="text-success"
+                        type="checkbox"
+                        checked={item.status === 2 ? true : false}
+                        on:change={() =>
+                          (todolists[index].status =
+                            todolists[index].status === 0
+                              ? 2
+                              : todolists[index].status === 1 ||
+                                todolists[index].status === 3
+                              ? 2
+                              : 0)}
                       />
-                      <div class="p-2">
-                        <i
-                          class="fa fa-check text-success"
-                          role="button"
-                          tabindex="ind-{index}"
-                          aria-label="Completed"
-                          data-toggle="tooltip"
-                          title="Save"
-                          on:mousedown={() => onEditSave(index, 0)}
-                        />
-                        <i
-                          class="fa fa-ban text-danger"
-                          role="button"
-                          tabindex="ind-{index}"
-                          data-toggle="tooltip"
-                          title="Reject"
-                          on:mousedown={() => onEditSave(index, 3)}
-                          aria-label="Completed"
-                        />
-                      </div>
-                    </div>
-                  </td>
-                  <td class="td-actions text-right">
-                    <div class="form-button-action">
-                      <button
-                        type="button"
+                      <!-- <span class="form-check-sign"></span> -->
+                    </label>
+                  </div>
+                </td>
+                <td class={getClass(item.status)}>
+                  <div class="todo" id="default-{index}">
+                    {item.name}
+                    <a
+                      href="/"
+                      title=""
+                      class="btns text-dark text-sm px-2 py-1 rounded bg-success"
+                      on:click|preventDefault={() => onEditSave(index, 1)}
+                    >
+                      Start
+                    </a>
+                  </div>
+
+                  <div class="input-group d-none" id="change-{index}">
+                    <input
+                      type="text"
+                      class="form-control {getClass(item.status)}"
+                      bind:value={item.name}
+                      style="width:fit-content;"
+                      id={"input-" + index}
+                    />
+                    <div class="p-2">
+                      <i
+                        class="fa fa-check text-success"
+                        role="button"
+                        tabindex="ind-{index}"
+                        aria-label="Completed"
                         data-toggle="tooltip"
-                        title="Edit Task"
-                        class="btn btn-link <btn-simple-primary"
-                        on:click={() => enableEdit(index)}
-                      >
-                        <i class="fa fa-edit" />
-                      </button>
-                      <button
-                        type="button"
+                        title="Save"
+                        on:mousedown={() => onEditSave(index, 0)}
+                      />
+                      <i
+                        class="fa fa-ban text-danger"
+                        role="button"
+                        tabindex="ind-{index}"
                         data-toggle="tooltip"
-                        title="Remove"
-                        class="btn btn-link btn-simple-danger"
-                      >
-                        <i class="fa fa-times" />
-                      </button>
+                        title="Reject"
+                        on:mousedown={() => onEditSave(index, 3)}
+                        aria-label="Completed"
+                      />
                     </div>
-                  </td>
-                </tr>
-              {/each}
-            {/key}
+                  </div>
+                </td>
+                <td class="td-actions text-right">
+                  <div class="form-button-action">
+                    <button
+                      type="button"
+                      data-toggle="tooltip"
+                      title="Edit Task"
+                      class="btn btn-link <btn-simple-primary"
+                      on:click={() => enableEdit(index)}
+                    >
+                      <i class="fa fa-edit" />
+                    </button>
+                    <button
+                      type="button"
+                      data-toggle="tooltip"
+                      title="Remove"
+                      class="btn btn-link btn-simple-danger"
+                    >
+                      <i class="fa fa-times" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            {/each}
+            <!-- {/key} -->
           </tbody>
         </table>
       </div>
@@ -291,7 +318,15 @@
     margin: 0;
     overflow: hidden;
   }
-
+  .btns {
+    opacity: 0;
+    text-decoration: none;
+  }
+  .todo:hover {
+    & .btns {
+      opacity: 1 !important;
+    }
+  }
   .modal-overlay {
     position: fixed;
     top: 0;
